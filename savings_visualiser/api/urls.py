@@ -2,5 +2,5 @@ from django.urls import path
 from .views import GraphApiView
 
 urlpatterns = [
-    path('a', GraphApiView.as_view())
+    path('graph', GraphApiView.as_view())
 ]
