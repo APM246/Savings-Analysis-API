@@ -23,3 +23,7 @@ class GraphApiView(APIView):
 
         except: 
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class MonitorApiView(APIView):
+    def get(self, request):
+        return Response(status=status.HTTP_200_OK)
