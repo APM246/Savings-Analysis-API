@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-k5+89liqjozvb#+jz)y0ha@en@yntq*r!b_*h!c73ux=__z)7g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['savings-visualiser-env.eba-daupks2m.ap-southeast-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['savings-visualiser-env.eba-daupks2m.ap-southeast-2.elasticbeanstalk.com', '.vercel.app']
 
 # Application definition
 
@@ -79,12 +79,7 @@ WSGI_APPLICATION = 'savings_visualiser.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+DATABASES = {}
 
 
 # Password validation
