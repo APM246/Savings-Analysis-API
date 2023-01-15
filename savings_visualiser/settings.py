@@ -27,6 +27,19 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['api.arunmuthu.net', '127.0.0.1']
 
+DEFAULT_RENDERER_CLASSES = (
+    'rest_framework.renderers.JSONRenderer',
+)
+
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES = DEFAULT_RENDERER_CLASSES + (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES
+}
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -53,7 +66,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:4200'
+    'http://localhost:4200', 'https://savings-visualiser-m03d04crb-apm246.vercel.app/'
 ]
 ROOT_URLCONF = 'savings_visualiser.urls'
 
