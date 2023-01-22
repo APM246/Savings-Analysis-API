@@ -66,7 +66,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:4200', 'https://savings-visualiser.vercel.app/'
+    'http://localhost:4200', 'https://savings-visualiser.vercel.app', 'https://savings-visualiser.vercel.app/'
 ]
 ROOT_URLCONF = 'savings_visualiser.urls'
 

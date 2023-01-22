@@ -1,13 +1,14 @@
+from typing import List
 import pandas as pd
 import matplotlib.pyplot as plt
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-def analyse(files: list[InMemoryUploadedFile], bank_types: list[str], hidden: bool) -> BytesIO:
+def analyse(files: List[InMemoryUploadedFile], bank_types: List[str], hidden: bool) -> BytesIO:
     MIN_DATE = None
     MAX_DATE = None
     transactions = None
-    data_frames: list[pd.DataFrame] = []
+    data_frames: List[pd.DataFrame] = []
     for i in range(len(files)):
         if bank_types[i] == "bankwest":
             transactions = pd.read_csv(files[i], parse_dates=[2], infer_datetime_format=True, dayfirst=True)
@@ -29,7 +30,7 @@ def analyse(files: list[InMemoryUploadedFile], bank_types: list[str], hidden: bo
                 MAX_DATE = end_date
     
     new_index = pd.date_range(start=MIN_DATE, end=MAX_DATE)
-    processed_transactions: list[pd.DataFrame] = []
+    processed_transactions: List[pd.DataFrame] = []
     for i in range(len(files)):
         if bank_types[i] == "bankwest":
             transactions = process_bankwest(data_frames[i], new_index)
