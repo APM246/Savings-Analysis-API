@@ -10,18 +10,16 @@ class GraphApiView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request):
-        bankwest_csv_file: InMemoryUploadedFile = request.data['bankwest']
-        commbank_csv_file = None
-        if 'commbank' in request.data:
-            commbank_csv_file: InMemoryUploadedFile = request.data['commbank']
-        
+        files = request.data.getlist("files")
+        bank_types = request.data.getlist("bankTypes")
         hidden: bool = request.data['hideAxis'] == 'true'
 
         try:
-            graph_file = analyse(bankwest_csv_file, commbank_csv_file, hidden)
+            graph_file = analyse(files, bank_types, hidden)
             return HttpResponse(graph_file, content_type='image/png')
 
-        except: 
+        except Exception as error:
+            print(error) 
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class MonitorApiView(APIView):
