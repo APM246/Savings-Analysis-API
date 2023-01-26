@@ -10,16 +10,15 @@ class GraphApiView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request):
-        files = request.data.getlist("files")
-        bank_types = request.data.getlist("bankTypes")
-        hidden: bool = request.data['hideAxis'] == 'true'
-
         try:
+            files = request.data.getlist("files")
+            bank_types = request.data.getlist("bankTypes")
+            hidden: bool = request.data['hideAxis'] == 'true'
+
             graph_file = analyse(files, bank_types, hidden)
             return HttpResponse(graph_file, content_type='image/png')
 
         except Exception as error:
-            print(error) 
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class MonitorApiView(APIView):
