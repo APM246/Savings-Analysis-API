@@ -11,4 +11,4 @@ class EndpointsTestCase(APITestCase):
        
     def test_graph_endpoint_500_when_no_file_provided(self):
         response = self.client.post('/api/graph')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 500)
