@@ -5,6 +5,7 @@ from rest_framework.parsers import MultiPartParser
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import HttpResponse, FileResponse
 from .lib.analysis import analyse
+from time import sleep
 
 class GraphApiView(APIView):
     parser_classes = [MultiPartParser]
@@ -23,4 +24,4 @@ class GraphApiView(APIView):
 
 class MonitorApiView(APIView):
     def get(self, request):
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK) 
