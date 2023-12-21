@@ -47,6 +47,7 @@ def analyse(files: List[InMemoryUploadedFile], bank_types: List[str], hidden: bo
 
     daily_balance = pd.concat(processed_transactions, ignore_index=True)
     daily_balance = daily_balance.groupby('Transaction Date').sum().reset_index()
+    print(daily_balance.tail(30))
 
     plt.figure(figsize=(10,10))
     plt.xlabel('Date')
