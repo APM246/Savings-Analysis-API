@@ -10,11 +10,14 @@ def analyse(files: List[InMemoryUploadedFile], bank_types: List[str], hidden: bo
     transactions = None
     data_frames: List[pd.DataFrame] = []
     for i in range(len(files)):
-        if bank_types[i] == "bankwest":
-            transactions = pd.read_csv(files[i], parse_dates=[2], infer_datetime_format=True, dayfirst=True)
-        elif bank_types[i] == "commbank":
-            column_names = ["Transaction Date", "Change", "Description", "Balance"]
-            transactions = pd.read_csv(files[i], names=column_names, parse_dates=[0], infer_datetime_format=True, dayfirst=True)
+        match bank_types[i]:
+            case "bankwest":
+                transactions = pd.read_csv(files[i], parse_dates=[2], infer_datetime_format=True, dayfirst=True)
+            case "commbank":
+                column_names = ["Transaction Date", "Change", "Description", "Balance"]
+                transactions = pd.read_csv(files[i], names=column_names, parse_dates=[0], infer_datetime_format=True, dayfirst=True)
+            case "macquarie":
+                transactions = pd.read_csv(files[i], parse_dates=[0], infer_datetime_format=True, dayfirst=True)
 
         data_frames.append(transactions)
         start_date = transactions["Transaction Date"].min()
@@ -32,12 +35,15 @@ def analyse(files: List[InMemoryUploadedFile], bank_types: List[str], hidden: bo
     new_index = pd.date_range(start=MIN_DATE, end=MAX_DATE)
     processed_transactions: List[pd.DataFrame] = []
     for i in range(len(files)):
-        if bank_types[i] == "bankwest":
-            transactions = process_bankwest(data_frames[i], new_index)
-            processed_transactions.append(transactions)
-        elif bank_types[i] == "commbank":
-            transactions = process_commbank(data_frames[i], new_index)
-            processed_transactions.append(transactions)
+        match bank_types[i]:
+            case "bankwest":
+                transactions = process_bankwest(data_frames[i], new_index)
+            case "commbank":
+                transactions = process_commbank(data_frames[i], new_index)
+            case "macquarie":
+                transactions = process_macquarie(data_frames[i], new_index)
+        
+        processed_transactions.append(transactions)
 
     daily_balance = pd.concat(processed_transactions, ignore_index=True)
     daily_balance = daily_balance.groupby('Transaction Date').sum().reset_index()
@@ -86,14 +92,23 @@ def process_bankwest(transaction_history: pd.DataFrame, new_index):
     return bankwest_processed_transactions
 
 def process_commbank(commbank_transactions: pd.DataFrame, new_index):
-        # Latest value for each date
-        commbank_transactions = commbank_transactions.groupby('Transaction Date').first()
+    # Latest value for each date
+    commbank_transactions = commbank_transactions.groupby('Transaction Date').first()
 
-        # Filling missing dates
-        commbank_transactions = commbank_transactions.reindex(new_index, method="ffill", fill_value=0).reset_index().rename(columns={'index': 'Transaction Date'})
+    # Filling missing dates
+    commbank_transactions = commbank_transactions.reindex(new_index, method="ffill", fill_value=0).reset_index().rename(columns={'index': 'Transaction Date'})
 
-        # problem below: it appears as if on 26th income was earnt but actually just balance of netbank saver not considered before first transaction.
-        # data insufficient and needs manual intervention
+    # problem below: it appears as if on 26th income was earnt but actually just balance of netbank saver not considered before first transaction.
+    # data insufficient and needs manual intervention
 
-        commbank_processed_transactions = commbank_transactions.groupby('Transaction Date').sum().reset_index()
-        return commbank_processed_transactions
+    commbank_processed_transactions = commbank_transactions.groupby('Transaction Date').sum().reset_index()
+    return commbank_processed_transactions
+
+def process_macquarie(transactions: pd.DataFrame, new_index):
+    # Latest value for each date
+    transactions = transactions.groupby('Transaction Date').first()
+    transactions = transactions.reindex(new_index, method="ffill", fill_value=0).reset_index().rename(columns={'index': 'Transaction Date'})
+    transactions = transactions.groupby('Transaction Date').sum().reset_index()
+
+    return transactions
+
