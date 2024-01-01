@@ -37,11 +37,9 @@ def analyse(files: List[InMemoryUploadedFile], bank_types: List[str], hidden: bo
     for i in range(len(files)):
         match bank_types[i]:
             case "bankwest":
-                transactions = process_bankwest(data_frames[i], new_index)
-            case "commbank":
-                transactions = process_commbank(data_frames[i], new_index)
-            case "macquarie":
-                transactions = process_macquarie(data_frames[i], new_index)
+                transactions = processForBankwest(data_frames[i], new_index)
+            case other:
+                transactions = processForGenericBank(data_frames[i], new_index)
         
         processed_transactions.append(transactions)
 
@@ -73,7 +71,7 @@ def analyse(files: List[InMemoryUploadedFile], bank_types: List[str], hidden: bo
     return file_object
 
 
-def process_bankwest(transaction_history: pd.DataFrame, new_index):
+def processForBankwest(transaction_history: pd.DataFrame, new_index):
     processed_accounts = []
     account_numbers = set(transaction_history["Account Number"])
 
@@ -92,24 +90,16 @@ def process_bankwest(transaction_history: pd.DataFrame, new_index):
     bankwest_processed_transactions = bankwest_processed_transactions.groupby('Transaction Date').sum().reset_index()
     return bankwest_processed_transactions
 
-def process_commbank(commbank_transactions: pd.DataFrame, new_index):
+def processForGenericBank(transactions: pd.DataFrame, new_index):
     # Latest value for each date
-    commbank_transactions = commbank_transactions.groupby('Transaction Date').first()
+    transactions = transactions.groupby('Transaction Date').first()
 
     # Filling missing dates
-    commbank_transactions = commbank_transactions.reindex(new_index, method="ffill", fill_value=0).reset_index().rename(columns={'index': 'Transaction Date'})
+    transactions = transactions.reindex(new_index, method="ffill", fill_value=0).reset_index().rename(columns={'index': 'Transaction Date'})
 
     # problem below: it appears as if on 26th income was earnt but actually just balance of netbank saver not considered before first transaction.
     # data insufficient and needs manual intervention
 
-    commbank_processed_transactions = commbank_transactions.groupby('Transaction Date').sum().reset_index()
+    commbank_processed_transactions = transactions.groupby('Transaction Date').sum().reset_index()
     return commbank_processed_transactions
-
-def process_macquarie(transactions: pd.DataFrame, new_index):
-    # Latest value for each date
-    transactions = transactions.groupby('Transaction Date').first()
-    transactions = transactions.reindex(new_index, method="ffill", fill_value=0).reset_index().rename(columns={'index': 'Transaction Date'})
-    transactions = transactions.groupby('Transaction Date').sum().reset_index()
-
-    return transactions
 
